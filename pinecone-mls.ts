@@ -9,29 +9,29 @@ function getListings(): object[]{
     const homes = JSON.parse( fs.readFileSync("./tmp/mls-values.json", {
         encoding: "utf-8"
     }));
-    return homes.slice(0, 100).map((listing: any) => {
+    return homes.slice(800, 1000).map((listing: any) => {
         return {
-            ListingKey: listing.ListingKey,
-            ShowingInstructions: listing.ShowingInstructions,
-            StreetName: listing.StreetName,
-            BathroomsFull: listing.BathroomsFull,
-            BedroomsTotal: listing.BedroomsTotal,
-            LotSizeAcres: listing.LotSizeAcres,
-            PostalCode: listing.PostalCode,
-            PropertyType: listing.PropertyType,
-            ListPrice: listing.ListPrice,
-            StandardStatus: listing.StandardStatus,
-            StreetNumber: listing.StreetNumber,
-            ListingId: listing.ListingId,
-            YearBuilt: listing.YearBuilt,
-            StateOrProvince: listing.StateOrProvince,
-            ArchitecturalStyle: listing.ArchitecturalStyle,
-            City: listing.City,
-            BathroomsHalf: listing.BathroomsHalf,
-            PropertySubType: listing.PropertySubType,
-            BuildingAreaTotal: listing.BuildingAreaTotal,
-            PrivateOfficeRemarks: listing.PrivateOfficeRemarks,
-            PublicRemarks: listing.PublicRemarks
+            ListingKey: String(listing.ListingKey),
+            ShowingInstructions: String(listing.ShowingInstructions),
+            StreetName: String(listing.StreetName),
+            BathroomsFull: String(listing.BathroomsFull),
+            BedroomsTotal: String(listing.BedroomsTotal),
+            LotSizeAcres: String(listing.LotSizeAcres),
+            PostalCode: String(listing.PostalCode),
+            PropertyType: String(listing.PropertyType),
+            ListPrice: String(listing.ListPrice),
+            StandardStatus: String(listing.StandardStatus),
+            StreetNumber: String(listing.StreetNumber),
+            ListingId: String(listing.ListingId),
+            YearBuilt: String(listing.YearBuilt),
+            StateOrProvince: String(listing.StateOrProvince),
+            ArchitecturalStyle: String(listing.ArchitecturalStyle),
+            City: String(listing.City),
+            BathroomsHalf: String(listing.BathroomsHalf),
+            PropertySubType: String(listing.PropertySubType),
+            BuildingAreaTotal: String(listing.BuildingAreaTotal),
+            PrivateOfficeRemarks: String(listing.PrivateOfficeRemarks),
+            PublicRemarks: String(listing.PublicRemarks)
         }
     })
 }
@@ -45,29 +45,49 @@ function createEmbedding(listing: object) {
 }
 
 async function uploadListings(listings: object[]) {
-    const testListing: any = listings[0]
-    const vector = await openai.embeddings.create({
-        input: createEmbedding(testListing),
-        model: "text-embedding-ada-002",
+
+    listings.forEach((l:any) => {
+        openai.embeddings.create({
+            input: createEmbedding(l),
+            model: "text-embedding-ada-002",
+        }).then(vector => {
+            const start= (new Date()).getMilliseconds()
+            index.namespace('sample').upsert([
+                {
+                    id: l.ListingKey,
+                    values: vector.data[0].embedding,
+                    metadata: l
+                }
+            ]).then(data => console.log((new Date()).getMilliseconds() - start))
+        });
+    })
+
+}
+
+async function queryListings(search: string) {
+    const embedding = await openai.embeddings.create({
+        input: search,
+        model: "text-embedding-ada-002"
     });
 
-    index.namespace('sample').upsert([
-        {
-            id: testListing.ListingKey,
-            values: vector.data[0].embedding,
-            metadata: testListing
+    let start: any = performance.now()
+    const query: any = await index.namespace('sample').query({
+            topK: 2,
+            vector: embedding.data[0].embedding,
+            includeValues: true,
+            includeMetadata: true
         }
-    ])
+    );
+    let end: any = performance.now()
+    console.log(`Execution time: ${end - start} ms`);
+    return query
 }
 
 // uploadListings(getListings())
-console.log(createEmbedding(getListings()[0]))
 
-index.namespace('sample').query({
-        id: "653207c52a9d54bf632357f73d5c6cbd",
-        topK: 2
-    }
-).then(data => {
-    console.log(data)
-});
+
+queryListings("Small house with 1 bedroom and a porch").then(data => console.log(data.matches.map((m:any) => m.metadata)))
+// console.log(createEmbedding(getListings()[0]))
+
+
 
