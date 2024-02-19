@@ -19,6 +19,7 @@ async function queryDB() {
 
         const vector = await getSearchVector()
 
+        let start = performance.now()
         let movies = await index.query({
             topK: 5,
             vector: vector,
@@ -26,9 +27,11 @@ async function queryDB() {
             includeMetadata: true
             // filter: { genre: { '$eq': 'action' }}
         });
+        let end = performance.now()
 
 
         console.log('Stats:', stats)
+        console.log(`Query Time ${end - start} ms`)
         console.log('Query Results:', movies.matches.map(m => m.metadata));
 
 
