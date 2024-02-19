@@ -51,14 +51,14 @@ async function uploadListings(listings: object[]) {
             input: createEmbedding(l),
             model: "text-embedding-ada-002",
         }).then(vector => {
-            const start= (new Date()).getMilliseconds()
+            const start= performance.now()
             index.namespace('sample').upsert([
                 {
                     id: l.ListingKey,
                     values: vector.data[0].embedding,
                     metadata: l
                 }
-            ]).then(data => console.log((new Date()).getMilliseconds() - start))
+            ]).then(data => console.log(`Upsert Query Timing ${performance.now() - start} ms`))
         });
     })
 
