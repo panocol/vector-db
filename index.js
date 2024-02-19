@@ -1,5 +1,6 @@
-const queryListings = require("./pinecone-mls");
+const {queryListings} = require("./dist/pinecone-mls.js");
+
 exports.handler = async (event) => {
     console.log("Executing some event", event)
-    queryListings(event.q)
+    await queryListings(event.q)
 }

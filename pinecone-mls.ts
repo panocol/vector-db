@@ -68,5 +68,5 @@ async function queryListings(search: string) {
 // queryListings("Small house with 1 bedroom and a porch").then(data => console.log(data.matches.map((m:any) => m.metadata)))
 // console.log(createEmbedding(getListings()[0]))
 
-exports.queryListings = queryListings
+export {queryListings}
 
