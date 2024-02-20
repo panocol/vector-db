@@ -10,7 +10,7 @@ function getListings(): object[]{
     const homes = JSON.parse( fs.readFileSync("./tmp/mls-values.json", {
         encoding: "utf-8"
     }));
-    return homes.slice(900, 1000).map((listing: any) => {
+    return homes.slice(600, 900).map((listing: any) => {
         return {
             ListingKey: String(listing.ListingKey),
             PropertyType: String(listing.PropertyType),
@@ -25,6 +25,12 @@ function createEmbedding(listing: any) {
     return `${listing.PropertySubType} - ${listing.PropertyType} - ${listing.PublicRemarks} - ${listing.PrivateOfficeRemarks}`;
 }
 
+function createMetadata(listing: any) {
+    return {
+        ListingKey: listing.ListingKey
+    }
+}
+
 async function uploadListings(listings: object[]) {
 
     listings.forEach((l:any) => {
@@ -37,7 +43,7 @@ async function uploadListings(listings: object[]) {
                 {
                     id: l.ListingKey,
                     values: vector.data[0].embedding,
-                    metadata: l
+                    metadata: createMetadata(l)
                 }
             ]).then(data => console.log(`Upsert Query Timing ${performance.now() - start} ms`))
         });
@@ -59,13 +65,13 @@ async function queryListings(search: string) {
         }
     );
     let end: any = performance.now()
-    console.log(`Execution time: ${end - start} ms`);
+    console.log(`Query Listing Execution time: ${end - start} ms`);
     return query
 }
 
 // uploadListings(getListings())
 
-// queryListings("Small house with 1 bedroom and a porch").then(data => console.log(data.matches.map((m:any) => m.metadata)))
+queryListings("Small house with 1 bedroom and a porch").then(data => console.log(data.matches.map((m:any) => m.metadata)))
 // console.log(createEmbedding(getListings()[0]))
 
 export {queryListings}
