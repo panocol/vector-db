@@ -21,10 +21,10 @@ async function queryDB() {
 
         let start = performance.now()
         let movies = await index.query({
-            topK: 5,
+            topK: 2,
             vector: vector,
-            includeValues: true,
-            includeMetadata: true
+            includeValues: false,
+            includeMetadata: false
             // filter: { genre: { '$eq': 'action' }}
         });
         let end = performance.now()
@@ -32,7 +32,7 @@ async function queryDB() {
 
         console.log('Stats:', stats)
         console.log(`Query Time ${end - start} ms`)
-        console.log('Query Results:', movies.matches.map(m => m.metadata));
+        console.log('Query Results:', movies.matches);
 
 
     } catch (error) {

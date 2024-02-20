@@ -1,35 +1,8 @@
 import {pinecone, openai} from "./app"
-import axios from "axios";
-import * as fs from "fs";
-import {RecordMetadata} from "@pinecone-database/pinecone";
+import {createEmbedding, createMetadata, getListings} from "./helpers/insert_helpers";
 
 const index = pinecone.index("mls");
 
-function getListings(): object[]{
-    // axios.get("https://api.bridgedataoutput.com/api/v2/OData/mlspin/Property?access_token=7016ecb8678df5cbde06715314d71bc7")
-    const homes = JSON.parse( fs.readFileSync("./tmp/mls-values.json", {
-        encoding: "utf-8"
-    }));
-    return homes.slice(600, 900).map((listing: any) => {
-        return {
-            ListingKey: String(listing.ListingKey),
-            PropertyType: String(listing.PropertyType),
-            PropertySubType: String(listing.PropertySubType),
-            PrivateOfficeRemarks: String(listing.PrivateOfficeRemarks),
-            PublicRemarks: String(listing.PublicRemarks)
-        }
-    })
-}
-
-function createEmbedding(listing: any) {
-    return `${listing.PropertySubType} - ${listing.PropertyType} - ${listing.PublicRemarks} - ${listing.PrivateOfficeRemarks}`;
-}
-
-function createMetadata(listing: any) {
-    return {
-        ListingKey: listing.ListingKey
-    }
-}
 
 async function uploadListings(listings: object[]) {
 
@@ -56,23 +29,24 @@ async function queryListings(search: string) {
         input: search,
         model: "text-embedding-ada-002"
     });
-
-    let start: any = performance.now()
+    const start: any = performance.now()
     const query: any = await index.namespace('sample').query({
             topK: 2,
             vector: embedding.data[0].embedding,
-            includeMetadata: true
+            includeMetadata: true,
+            includeValues: true
         }
     );
-    let end: any = performance.now()
+    const end: any = performance.now()
     console.log(`Query Listing Execution time: ${end - start} ms`);
     return query
 }
 
 // uploadListings(getListings())
 
-queryListings("Small house with 1 bedroom and a porch").then(data => console.log(data.matches.map((m:any) => m.metadata)))
+queryListings("Small house with 1 bedroom and a porch").then(d => {
+    console.log(d.metadata)
+})
 // console.log(createEmbedding(getListings()[0]))
 
 export {queryListings}
-
