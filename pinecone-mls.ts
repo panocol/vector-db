@@ -29,23 +29,26 @@ async function queryListings(search: string) {
         input: search,
         model: "text-embedding-ada-002"
     });
-    const start: any = performance.now()
+    const start: Date = new Date()
     const query: any = await index.namespace('sample').query({
             topK: 2,
             vector: embedding.data[0].embedding,
-            includeMetadata: true,
-            includeValues: true
+            includeMetadata: false,
+            includeValues: false
         }
     );
-    const end: any = performance.now()
-    console.log(`Query Listing Execution time: ${end - start} ms`);
+    const end: Date = new Date()
+    console.log(`Query Listing Execution time: ${end.getTime() - start.getTime()} ms`);
     return query
 }
 
 // uploadListings(getListings())
 
+index.namespace('sample').describeIndexStats().then(data => {
+    console.log(data)
+})
 queryListings("Small house with 1 bedroom and a porch").then(d => {
-    console.log(d.metadata)
+    console.log(d)
 })
 // console.log(createEmbedding(getListings()[0]))
 
