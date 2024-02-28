@@ -23,12 +23,8 @@ to a local Qdrant index.
 
 
 
-
-
-
-
 -----------------
-Notes
+## Notes
 
 ```
 npm install @pinecone-database/pinecone
@@ -44,7 +40,7 @@ TypeScript
 
 ```
 
-## Prisma ORM
+#### Prisma ORM
 Setup the prima schemas
 ```
 npx prisma init --datasource-provider cockroachdb
