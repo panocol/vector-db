@@ -140,7 +140,7 @@ export abstract class MLSPipeline {
                 vectors: null
             },
             include: {vectors: true},
-            take: 10000
+            take: 1000
         });
         console.log(`Found ${listingsWithoutEmbeddings.length} vectors without data`);
 
@@ -168,6 +168,10 @@ export abstract class MLSPipeline {
         await this.loadMLSPin();
         await this.loadLandmarks();
         await this.loadEmbeddings();
+        await this.loadIndex();
+    }
+
+    public async loadIndexOnly(): Promise<void> {
         await this.loadIndex();
     }
 }

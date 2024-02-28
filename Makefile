@@ -10,3 +10,9 @@ qdrant-up:
 
 qdrant-down:
 	${DOCKER_CMD} down qdrant
+
+docker-up:
+	${DOCKER_CMD} up -d
+
+docker-down:
+	${DOCKER_CMD} down

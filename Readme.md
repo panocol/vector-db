@@ -1,6 +1,34 @@
 # Homwel Pipeline Poc
 
-Setup with
+## Steps to run pipline
+
+Setup db and vector index
+```markdown
+make db-up
+```
+
+
+Run the Pipeline
+```markdown
+npm run pipeline
+```
+
+This pipeline will Execute `QdrantMLSPipline.run()`. Which will
+1. Load data from a mls listings json file to cockroach DB.
+2. generate vector embeddings using open api and cache those embeddings in cockroach DB.
+3. use those embeddings and upsert them along with real estate metadata
+to a local Qdrant index.
+
+
+
+
+
+
+
+
+
+-----------------
+Notes
 
 ```
 npm install @pinecone-database/pinecone

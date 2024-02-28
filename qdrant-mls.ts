@@ -73,7 +73,15 @@ async function searchVectors(search: string) {
 }
 
 // importVectors();
-searchVectors("Seller may be open to a lease under favorable terms").then(async r => {
+
+const pipeline = new QdrantMLSPipeline();
+// pipeline.run().then(() => {
+//     console.log("Pipeline ran successfully")
+// })
+pipeline.loadIndexOnly().then(() => {
+    console.log("Index Should now be loaded successfully")
+})
+/*searchVectors("A home i can fall in love with").then(async r => {
     const listings = await prisma.listing.findMany({
         where: {
             id: {
@@ -89,10 +97,6 @@ searchVectors("Seller may be open to a lease under favorable terms").then(async 
     });
     console.log(listings)
 
-})
+})*/
 
 
-// const pipeline = new QdrantMLSPipeline();
-// pipeline.run().then(() => {
-//     console.log("Pipeline ran successfully")
-// })
