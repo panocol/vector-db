@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+
+model Listing {
+  id                     String            @id @default(dbgenerated("gen_random_uuid()"))
+  listPrice              Int?
+  latitude               Float?
+  longitude              Float?
+  streetNumber           String?
+  streetName             String?
+  unitNumber             String?
+  city                   String?
+  stateOrProvince        String?
+  postalCode             String?
+  listingKey             String?
+  listingId              String?
+  standardStatus         String?
+  propertyType           String?
+  propertySubType        String?
+  privateOfficeRemarks   String?
+  publicRemarks          String?
+  originalEntryTimestamp DateTime?
+  modificationTimestamp  DateTime?
+  bedroomsTotal          Int?
+  bathroomsFull          Int?
+  bathroomsHalf          Int?
+  buildingAreaUnits      String?
+  buildingAreaTotal      Int?
+  lotSizeAcres           Int?
+  yearBuilt              Int?
+  architecturalStyle     String?
+  showingInstructions    String?
+  unparsedAddress        String?
+  dateCreated            DateTime          @default(now())
+  dateUpdated            DateTime          @default(now())
+  landmarks              ListingLandMarks[]
+  vectors                ListingVector?
+  @@index([listingId], name: "idx_listing_listingId")
+}
+
+model ListingLandMarks {
+  id          Int      @id @default(sequence())
+  landmarks   String
+  listingId   String
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @default(now()) @updatedAt
+  listing     Listing  @relation(fields: [listingId], references: [id])
+}
+
+model ListingVector {
+  id          Int      @id @default(sequence())
+  vector      Float[]
+  listingId   String @unique
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @default(now()) @updatedAt
+  listing     Listing  @relation(fields: [listingId], references: [id])
+}

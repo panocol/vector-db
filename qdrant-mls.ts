@@ -1,15 +1,11 @@
 import {QdrantClient} from '@qdrant/js-client-rest'; // REST client
-import {openai} from "./app"
+import {openai, prisma, qdrant} from "./app"
 import {createEmbedding, createMetadata, getListings} from "./helpers/insert_helpers";
-import {sleep} from "openai/core";
+import {QdrantMLSPipeline} from "./pipeline/QdrantMLSPipeline";
 
-const client: QdrantClient = new QdrantClient({
-    url: "https://16819c47-9aca-4b07-8534-fac94301a651.us-east4-0.gcp.cloud.qdrant.io",
-    port: 6333,
-    apiKey: process.env.QDRANT_API_KEY
-})
+const client: QdrantClient = qdrant;
 
-const className = 'test_collection';
+const className = 'mls-pin';
 
 
 async function getCollections() {
@@ -17,7 +13,7 @@ async function getCollections() {
     console.log(d)
 }
 
-getCollections();
+// getCollections();
 
 
 // client.createCollection(className, {
@@ -69,12 +65,34 @@ async function searchVectors(search: string) {
     let start: any = performance.now()
     const response = await client.search(className, {
         vector: embedding.data[0].embedding,
-        limit: 2
+        limit: 5
     })
     let end: any = performance.now()
     console.log(`Query Listing Execution time: ${end - start} ms`);
     return response
 }
 
-importVectors();
-// searchVectors("Small house with 1 bedroom and a porch").then(data => console.log(data))
+// importVectors();
+searchVectors("Seller may be open to a lease under favorable terms").then(async r => {
+    const listings = await prisma.listing.findMany({
+        where: {
+            id: {
+                in: r.map((item: any) => item.id)
+            }
+        },
+        select: {
+            propertyType: true,
+            propertySubType: true,
+            publicRemarks: true,
+            privateOfficeRemarks: true,
+        }
+    });
+    console.log(listings)
+
+})
+
+
+// const pipeline = new QdrantMLSPipeline();
+// pipeline.run().then(() => {
+//     console.log("Pipeline ran successfully")
+// })

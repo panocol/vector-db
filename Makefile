@@ -1,7 +1,12 @@
 DOCKER_CMD=docker-compose
 
 db-up:
-	${DOCKER_CMD} up cockroach
+	${DOCKER_CMD} up -d cockroach
 db-down:
 	${DOCKER_CMD} down cockroach
 
+qdrant-up:
+	${DOCKER_CMD} up -d qdrant
+
+qdrant-down:
+	${DOCKER_CMD} down qdrant

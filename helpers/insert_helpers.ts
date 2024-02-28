@@ -45,3 +45,13 @@ function createMetadata(listing: any) {
 }
 
 export {getListings, createEmbedding, createMetadata}
+
+/**
+ Thoughts on structing vectors:
+ Enhancing information from MLS
+ 1. Fetch the nearby landmarks for listing from Open Street Maps.
+ 2. Add additonal fields to the index which we've hydrated for each listing.
+ 3. Add additional filters to the document in the vector DB.
+ 4. Take images and pass to openAI to learn more about listings.
+ How do we know when to put something in the vector vs put something in the filter fields?
+ */

@@ -1,19 +1,36 @@
 version: '3'
 services:
   cockroach:
-   network_mode: host
-   image: cockroachdb/cockroach:v23.1.12
-   ports:
-     - '26257:26257'
-     - '8080:8080'
-   volumes:
-     - roach-single-certs:/cockroach/certs
-     - roach-single-data:/cockroach/cockroach-data
-   environment:
-     COCKROACH_DATABASE: cockroach
-     COCKROACH_USER: cockroach
-     COCKROACH_PASSWORD: cockroach
-   command: start-single-node --http-addr=localhost:8080 --insecure
+    network_mode: host
+    image: cockroachdb/cockroach:v23.1.12
+    ports:
+      - '26257:26257'
+      - '8080:8080'
+    volumes:
+      - roach-single-certs:/cockroach/certs
+      - roach-single-data:/cockroach/cockroach-data
+    environment:
+      COCKROACH_DATABASE: cockroach
+      COCKROACH_USER: cockroach
+      COCKROACH_PASSWORD: cockroach
+    command: start-single-node --http-addr=localhost:8080 --insecure
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    container_name: qdrant
+    ports:
+      - 6333:6333
+      - 6334:6334
+    expose:
+      - 6333
+      - 6334
+      - 6335
+#    configs:
+#      - source: qdrant_config
+#        target: /qdrant/config/production.yaml
+    volumes:
+      - ./qdrant_data:/qdrant_data
 
   # rabbitmq:
   #   network_mode: host
@@ -33,7 +50,10 @@ services:
   #   volumes:
   #     - cache:/data
 
-
+#configs:
+#  qdrant_config:
+#    content: |
+#      log_level: INFO
 
 volumes:
   roach-single-certs:
@@ -41,3 +61,4 @@ volumes:
   rabbitmq-data:
   rabbitmq-log:
   cache:
+  qdrant_data:
